@@ -387,7 +387,7 @@
                     }
                 }
             }
-
+            console.log("Inversions: "+inversions);
             if (gridSize % 2 !== 0) {
                 // Odd grid size (3x3, 5x5, 7x7...)
                 return inversions % 2 === 0;
@@ -396,8 +396,8 @@
                 const emptyIndex = arr.indexOf(0);
                 const emptyRowFromTop = Math.floor(emptyIndex / gridSize);
                 const emptyRowFromBottom = gridSize - emptyRowFromTop; // 1-based from bottom
-
-                return (inversions + emptyRowFromBottom) % 2 === 0;
+                console.log("Line 0: "+emptyRowFromBottom);
+                return (inversions + emptyRowFromBottom) % 2 !== 0;
             }
         }
 
