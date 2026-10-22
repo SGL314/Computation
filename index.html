@@ -1,29 +1,33 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo do Quinze (N x N Configurável)</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Tone.js for Sound Effects -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-    <!-- Canvas Confetti for Victory Celebration -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <html lang="pt-BR">
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogo do Quinze (N x N Configurável)</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Tone.js for Sound Effects -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+  <!-- Canvas Confetti for Victory Celebration -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+  <style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
 
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            user-select: none;
-            -webkit-user-select: none;
-            touch-action: manipulation;
-        }
+body {
+font-family:
+  'Plus Jakarta Sans', sans-serif;
+user-select:
+  none;
+-webkit-user-select:
+  none;
+touch-action:
+  manipulation;
+}
 
-        /* Puzzle Container Aspect Ratio Wrapper */
+/* Puzzle Container Aspect Ratio Wrapper */
         .puzzle-board-container {
             position: relative;
             width: 100%;
@@ -174,8 +178,8 @@
                 </div>
             </div>
 
-            <button onclick="closeVictoryModal(); shuffleBoard();" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/30 active:scale-[0.98] transition">
-                Jogar Novamente
+            <button onclick="closeVictoryModal();" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/30 active:scale-[0.98] transition">
+                Ver Grid Montado
             </button>
         </div>
     </div>
@@ -191,6 +195,7 @@
         let secondsElapsed = 0;
         let isGameActive = false;
         let isMuted = false;
+        let tileColors = {};
 
         // Sound FX setup
         let slideSynth;
@@ -257,6 +262,7 @@
 
         function changeGridSize(newSize) {
             gridSize = parseInt(newSize, 10);
+            formColors();
             totalTiles = gridSize * gridSize;
             createBoard();
             shuffleBoard();
@@ -296,6 +302,50 @@
             updateBoardUI(false);
         }
 
+        
+
+        // Colorama
+        function formColors(){
+            let t = 255,k=t*3/(gridSize-1),l=0;
+            grid = [{}];
+            for (let i=1;i<=gridSize*gridSize;i++){
+                grid[l][i] = [197,53,15];
+                if (i%gridSize==0){
+                    grid[l+1] = {};
+                    l++;
+                }
+            }
+
+            for (let i=1;i<=gridSize;i++){
+                for (let j=1;j<=gridSize;j++){
+                    tileColors[i+(j-1)*gridSize] = grid[j-1][i+(j-1)*gridSize];
+                }
+            }
+
+            let pot = 0;
+            for (let niv=0;niv<gridSize-1;niv++){
+                clr = [0,0,0];
+                let rel = k*niv;
+                if (pot>=t*2){
+                    clr = [rel%255,0,255-rel%255];
+                }else if (pot>=t){
+                    clr = [0,255-rel%255,rel%255];
+                }else{
+                    clr = [255-rel%255,rel%255,0];
+                }
+                // console.log(clr);
+                for (let i=1;i<=gridSize-niv;i++){
+                    tileColors[i+niv*(gridSize+1)] = clr;
+                    tileColors[1+(i-1)*gridSize+niv*(gridSize+1)] = clr;
+                }
+                pot += k;
+            }
+
+            
+            // console.log(tileColors);
+
+        }
+
         // Render current tiles state into positions
         function updateBoardUI(animate = true) {
             const tileSizePercent = 100 / gridSize;
@@ -312,6 +362,13 @@
                     // Compute dynamic sizing and positioning
                     tile.style.width = `calc(${tileSizePercent}% - 2px)`;
                     tile.style.height = `calc(${tileSizePercent}% - 2px)`;
+                    // if (index==0) tile.style.background = `rgb(155,24,89)`;
+                    // else tile.style.background = ``;
+                    if (value!=0){
+                        // console.log(value);
+                        let clr = tileColors[value];
+                        tile.style.background = `rgb(`+clr[0]+`,`+clr[1]+`,`+clr[2]+`)`;
+                    }
 
                     const posX = col * 100;
                     const posY = row * 100;
@@ -514,15 +571,15 @@
             // Pressing Arrow Up slides the tile BELOW the empty space UP into the empty slot.
             if (e.key === 'ArrowUp' && emptyRow < gridSize - 1) {
                 targetIndex = emptyIndex + gridSize;
-            } 
+            }
             // Pressing Arrow Down slides the tile ABOVE the empty space DOWN into the empty slot.
             else if (e.key === 'ArrowDown' && emptyRow > 0) {
                 targetIndex = emptyIndex - gridSize;
-            } 
+            }
             // Pressing Arrow Left slides the tile to the RIGHT of empty space LEFT into empty slot.
             else if (e.key === 'ArrowLeft' && emptyCol < gridSize - 1) {
                 targetIndex = emptyIndex + 1;
-            } 
+            }
             // Pressing Arrow Right slides the tile to the LEFT of empty space RIGHT into empty slot.
             else if (e.key === 'ArrowRight' && emptyCol > 0) {
                 targetIndex = emptyIndex - 1;
@@ -539,6 +596,7 @@
         // On Load
         window.onload = () => {
             populateGridSizeOptions();
+            formColors();
             createBoard();
             shuffleBoard();
         };
