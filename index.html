@@ -13,7 +13,13 @@
   <!-- Canvas Confetti for Victory Celebration -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
+  <!-- <link rel="Styles/quinze.css">
+  -->
+  <!-- Forma correta de importar o ficheiro CSS da pasta Styles -->
+  <link rel="stylesheet" href="Styles/quinze.css">
+
   <style>
+
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
 
 body {
@@ -28,7 +34,7 @@ touch-action:
 }
 
 /* Puzzle Container Aspect Ratio Wrapper */
-        .puzzle-board-container {
+.puzzle-board-container {
             position: relative;
             width: 100%;
             padding-bottom: 100%; /* Keeps 1:1 aspect ratio */
@@ -76,7 +82,9 @@ touch-action:
             background: rgba(156, 163, 175, 0.5);
             border-radius: 3px;
         }
-    </style>
+  
+
+  </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between items-center p-3 sm:p-5">
 
@@ -184,7 +192,7 @@ touch-action:
         </div>
     </div>
 
-    <!-- Logic Script -->
+    
     <script>
         // State Variables
         let gridSize = 4; // Default 4x4
@@ -269,12 +277,12 @@ touch-action:
         }
 
         // Initialize/Re-create DOM tiles
-        function createBoard() {
+        function createBoard(tilesPreSaved = false) {
             const board = document.getElementById('puzzleBoard');
             board.innerHTML = '';
 
             // Initial solved order: [1, 2, ..., N^2-1, 0]
-            tiles = Array.from({ length: totalTiles }, (_, i) => (i === totalTiles - 1 ? 0 : i + 1));
+            if (!tilesPreSaved) tiles = Array.from({ length: totalTiles }, (_, i) => (i === totalTiles - 1 ? 0 : i + 1));
 
             // Dynamic font sizing calculation depending on grid dimension
             let fontSizeClass = "text-xl";
@@ -294,7 +302,11 @@ touch-action:
                 tile.appendChild(span);
 
                 // Smart click listener: Moves tile if adjacent to empty slot
-                tile.addEventListener('click', () => handleTileClick(i));
+                tile.addEventListener('mousedown', () => handleTileClick(i));
+tile.addEventListener('touchstart', (e) => {
+    e.preventDefault(); // Evita disparo duplo em telas de toque
+    handleTileClick(i);
+});
 
                 board.appendChild(tile);
             }
@@ -422,6 +434,23 @@ touch-action:
 
             playSlideSound();
             updateBoardUI(true);
+            state = {
+  gridSize:
+  gridSize,
+  totalTiles:
+  totalTiles,
+  tiles:
+  tiles,
+  moves:
+  moves,
+  secondsElapsed:
+  secondsElapsed,
+  isGameActive:
+  isGameActive,
+  isMuted:
+  isMuted,
+};
+saveProgress(state);
 
             if (checkVictory()) {
                 handleVictory();
@@ -555,6 +584,26 @@ touch-action:
             return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
         }
 
+        // Objeto com o estado atual do seu jogo
+function saveProgress(state) {
+  // Converte o objeto do jogo em uma string JSON e salva
+  localStorage.setItem('saved', JSON.stringify(state));
+  console.log('Jogo salvo com sucesso!');
+}
+function loadProgress() {
+  const dadosSalvos = localStorage.getItem('saved');
+
+  if (dadosSalvos !== null) {
+    // Converte a string JSON de volta para um objeto JavaScript
+    const estadoCarregado = JSON.parse(dadosSalvos);
+    console.log('Dados carregados:', estadoCarregado);
+    return estadoCarregado;
+  } else {
+    console.log('Nenhum jogo salvo foi encontrado.');
+    return null;
+  }
+}
+
         // PC Keyboard Controls (Arrow Keys)
         document.addEventListener('keydown', (e) => {
             if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
@@ -595,11 +644,38 @@ touch-action:
 
         // On Load
         window.onload = () => {
-            populateGridSizeOptions();
+        populateGridSizeOptions();
+        state = loadProgress();
+        if (state==null) {
             formColors();
             createBoard();
             shuffleBoard();
+        } else {
+            //         state = {
+            //         gridSize: gridSize,
+            // totalTiles: totalTiles,
+            // tiles: tiles,
+            // moves: moves,
+            // secondsElapsed: secondsElapsed,
+            // isGameActive: isGameActive,
+            // isMuted: isMuted,
+            //     };
+            gridSize = state.gridSize;
+            totalTiles = state.totalTiles;
+            secondsElapsed = state.secondsElapsed;
+            tiles = state.tiles;
+            moves = state.moves;
+            isGameActive = state.isGameActive;
+            isMuted = state.isMuted;
+            formColors();
+            createBoard(true);
+        }
+        
         };
+        // populateGridSizeOptions();
+        //     formColors();
+        //     createBoard();
+        //     shuffleBoard();
     </script>
 </body>
 </html>
