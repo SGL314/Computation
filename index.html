@@ -384,11 +384,11 @@ tile.addEventListener('touchstart', (e) => {
 
                     const posX = col * 100;
                     const posY = row * 100;
-
+                    tile.style.transition = 'none';
                     if (!animate) {
-                        tile.style.transition = 'none';
+                       // tile.style.transition = 'none';
                     } else {
-                        tile.style.transition = 'transform 0.15s cubic-bezier(0.25, 1, 0.5, 1)';
+                       // tile.style.transition = 'transform 0.15s cubic-bezier(0.25, 1, 0.5, 1)';
                     }
 
                     tile.style.transform = `translate3d(${posX}%, ${posY}%, 0)`;
