@@ -166,7 +166,7 @@
             <a href="../index.html" class="fa-solid">Retornar</a>
             </button>
             <br>
-            <h4>By Gemini + Lobato</h4>
+            <h4>By Gemini + Lobato _ BCK005</h4>
     </footer>
 
     <!-- Victory Modal -->
@@ -669,10 +669,13 @@
             secondsElapsed = state.secondsElapsed;
             tiles = state.tiles;
             moves = state.moves;
-            isGameActive = state.isGameActive;
+            isGameActive = true; // para ativar o timer novamente
             isMuted = state.isMuted;
             formColors();
             createBoard(true);
+          startTimer();
+            //document.getElementById('movesCount').innerText = moves;
+         // document.getElementById('timerText').innerText = = formatTime(secondsElapsed);
         }
         
         };
