@@ -162,7 +162,7 @@ touch-action:
 
     <!-- Footer -->
     <footer class="text-center text-xs text-slate-500 py-2">
-        By Gemini + Lobato _ cell001
+        By Gemini + Lobato _ cell002
     </footer>
 
     <!-- Victory Modal -->
@@ -665,10 +665,12 @@ function loadProgress() {
             secondsElapsed = state.secondsElapsed;
             tiles = state.tiles;
             moves = state.moves;
-            isGameActive = state.isGameActive;
+            isGameActive = false; // para ativar o timer novamente
             isMuted = state.isMuted;
             formColors();
             createBoard(true);
+            document.getElementById('movesCount').innerText = moves;
+          document.getElementById('timerText').innerText = = formatTime(secondsElapsed);
         }
         
         };
